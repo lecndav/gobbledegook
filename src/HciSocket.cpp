@@ -35,9 +35,9 @@
 #include <thread>
 #include <fcntl.h>
 
-#include "HciSocket.h"
-#include "Logger.h"
-#include "Utils.h"
+#include "../include/HciSocket.h"
+#include "../include/Logger.h"
+#include "../include/Utils.h"
 
 namespace ggk {
 

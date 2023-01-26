@@ -27,7 +27,7 @@
 #include <string>
 #include <vector>
 
-#include "DBusMethod.h"
+#include "../include/DBusMethod.h"
 
 namespace ggk {
 

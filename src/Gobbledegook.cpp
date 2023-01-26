@@ -41,9 +41,9 @@
 #include <deque>
 #include <mutex>
 
-#include "Init.h"
-#include "Logger.h"
-#include "Server.h"
+#include "../include/Init.h"
+#include "../include/Logger.h"
+#include "../include/Server.h"
 
 namespace ggk
 {
@@ -438,7 +438,7 @@ int ggkWait()
 //
 //     Retrieve this value using the `getAdvertisingShortName()` method
 //
-int ggkStart(const char *pServiceName, const char *pAdvertisingName, const char *pAdvertisingShortName, 
+int ggkStart(Objects &objects, const char *pServiceName, const char *pAdvertisingName, const char *pAdvertisingShortName,
 	GGKServerDataGetter getter, GGKServerDataSetter setter, int maxAsyncInitTimeoutMS)
 {
 	try
@@ -484,7 +484,7 @@ int ggkStart(const char *pServiceName, const char *pAdvertisingName, const char 
 		Logger::info(SSTR << "Starting GGK server '" << pAdvertisingName << "'");
 
 		// Allocate our server
-		TheServer = std::make_shared<Server>(pServiceName, pAdvertisingName, pAdvertisingShortName, getter, setter);
+		TheServer = std::make_shared<Server>(objects, pServiceName, pAdvertisingName, pAdvertisingShortName, getter, setter);
 
 		// Start our server thread
 		try

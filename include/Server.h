@@ -31,7 +31,7 @@
 #include <list>
 #include <memory>
 
-#include "../include/Gobbledegook.h"
+#include "Gobbledegook.h"
 #include "DBusObject.h"
 
 namespace ggk {
@@ -51,12 +51,6 @@ struct DBusObjectPath;
 
 struct Server
 {
-	//
-	// Types
-	//
-
-	// Our server is a collection of D-Bus objects
-	typedef std::list<DBusObject> Objects;
 
 	//
 	// Accessors
@@ -158,7 +152,7 @@ struct Server
 	//
 	//     Retrieve this value using the `getAdvertisingShortName()` method.
 	//
-	Server(const std::string &serviceName, const std::string &advertisingName, const std::string &advertisingShortName, 
+	Server(const Objects &aobjects, const std::string &serviceName, const std::string &advertisingName, const std::string &advertisingShortName,
 		GGKServerDataGetter getter, GGKServerDataSetter setter);
 
 	//

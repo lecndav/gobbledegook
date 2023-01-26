@@ -31,7 +31,7 @@
 #include <algorithm>
 #include <string.h>
 
-#include "Utils.h"
+#include "../include/Utils.h"
 
 namespace ggk {
 
@@ -198,7 +198,7 @@ std::string Utils::hex(const uint8_t *pData, int count)
 std::string Utils::bluetoothAddressString(uint8_t *pAddress)
 {
 	char hex[32];
-	snprintf(hex, sizeof(hex), "%02X:%02X:%02X:%02X:%02X:%02X", 
+	snprintf(hex, sizeof(hex), "%02X:%02X:%02X:%02X:%02X:%02X",
 		pAddress[0], pAddress[1], pAddress[2], pAddress[3], pAddress[4], pAddress[5]);
 	return hex;
 }

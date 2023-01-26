@@ -150,18 +150,19 @@
 
 #include <algorithm>
 
-#include "Server.h"
-#include "ServerUtils.h"
-#include "Utils.h"
-#include "Globals.h"
-#include "DBusObject.h"
-#include "DBusInterface.h"
-#include "GattProperty.h"
-#include "GattService.h"
-#include "GattUuid.h"
-#include "GattCharacteristic.h"
-#include "GattDescriptor.h"
-#include "Logger.h"
+#include "../include/Server.h"
+#include "../include/ServerUtils.h"
+#include "../include/Utils.h"
+#include "../include/Globals.h"
+#include "../include/DBusObject.h"
+#include "../include/DBusInterface.h"
+#include "../include/GattProperty.h"
+#include "../include/GattService.h"
+#include "../include/GattUuid.h"
+#include "../include/GattCharacteristic.h"
+#include "../include/GattDescriptor.h"
+#include "../include/Logger.h"
+#include "../include/Gobbledegook.h"
 
 namespace ggk
 {
@@ -183,41 +184,7 @@ namespace ggk
 	// Our one and only server. It's global.
 	std::shared_ptr<Server> TheServer = nullptr;
 
-	// ---------------------------------------------------------------------------------------------------------------------------------
-	// Object implementation
-	// ---------------------------------------------------------------------------------------------------------------------------------
-
-	// Our constructor builds our entire server description
-	//
-	// serviceName: The name of our server (collectino of services)
-	//
-	//     This is used to build the path for our Bluetooth services. It also provides the base for the D-Bus owned name (see
-	//     getOwnedName.)
-	//
-	//     This value will be stored as lower-case only.
-	//
-	//     Retrieve this value using the `getName()` method.
-	//
-	// advertisingName: The name for this controller, as advertised over LE
-	//
-	//     IMPORTANT: Setting the advertisingName will change the system-wide name of the device. If that's not what you want, set
-	//     BOTH advertisingName and advertisingShortName to as empty string ("") to prevent setting the advertising
-	//     name.
-	//
-	//     Retrieve this value using the `getAdvertisingName()` method.
-	//
-	// advertisingShortName: The short name for this controller, as advertised over LE
-	//
-	//     According to the spec, the short name is used in case the full name doesn't fit within Extended Inquiry Response (EIR) or
-	//     Advertising Data (AD).
-	//
-	//     IMPORTANT: Setting the advertisingName will change the system-wide name of the device. If that's not what you want, set
-	//     BOTH advertisingName and advertisingShortName to as empty string ("") to prevent setting the advertising
-	//     name.
-	//
-	//     Retrieve this value using the `getAdvertisingShortName()` method.
-	//
-	Server::Server(const std::string &serviceName, const std::string &advertisingName, const std::string &advertisingShortName,
+	Server::Server(const Objects &aobjects, const std::string &serviceName, const std::string &advertisingName, const std::string &advertisingShortName,
 				   GGKServerDataGetter getter, GGKServerDataSetter setter)
 	{
 		// Save our names
@@ -238,95 +205,7 @@ namespace ggk
 		enableAdvertising = true;
 		enableBondable = false;
 
-		//
-		// Define the server
-		//
-
-		// Create the root D-Bus object and push it into the list
-		objects.push_back(DBusObject(DBusObjectPath() + "com" + getServiceName()));
-
-		// We're going to build off of this object, so we need to get a reference to the instance of the object as it resides in the
-		// list (and not the object that would be added to the list.)
-		objects.back()
-			// Service: Device Information (0x180A)
-			//
-			// See: https://www.bluetooth.com/specifications/gatt/viewer?attributeXmlFile=org.bluetooth.service.device_information.xml
-			.gattServiceBegin("device", "180A")
-
-			// Characteristic: Manufacturer Name String (0x2A29)
-			//
-			// See: https://www.bluetooth.com/specifications/gatt/viewer?attributeXmlFile=org.bluetooth.characteristic.manufacturer_name_string.xml
-			.gattCharacteristicBegin("mfgr_name", "2A29", {"read"})
-
-			// Standard characteristic "ReadValue" method call
-			.onReadValue(CHARACTERISTIC_METHOD_CALLBACK_LAMBDA {
-				self.methodReturnValue(pInvocation, "Occhio", true);
-			})
-
-			.gattCharacteristicEnd()
-
-			.gattServiceEnd()
-
-			// WiFi settings (00000001-B0C8-4679-8145-66CE3266C85F)
-			.gattServiceBegin("ssid", "00000010-B0C8-4679-8145-66CE3266C85F")
-
-			// start scanning and notify
-			.gattCharacteristicBegin("start", "00000011-B0C8-4679-8145-66CE3266C85F", {"write"})
-			.onWriteValue(CHARACTERISTIC_METHOD_CALLBACK_LAMBDA {
-				GVariant *pAyBuffer = g_variant_get_child_value(pParameters, 0);
-				self.setDataPointer("ssid/start", Utils::stringFromGVariantByteArray(pAyBuffer).c_str());
-				self.callOnUpdatedValue(pConnection, pUserData);
-				self.methodReturnVariant(pInvocation, NULL);
-			})
-			.gattCharacteristicEnd()
-
-			.gattCharacteristicBegin("id", "00000012-B0C8-4679-8145-66CE3266C85F", {"write"})
-			.onWriteValue(CHARACTERISTIC_METHOD_CALLBACK_LAMBDA {
-				GVariant *pAyBuffer = g_variant_get_child_value(pParameters, 0);
-				self.setDataPointer("ssid/id", Utils::stringFromGVariantByteArray(pAyBuffer).c_str());
-				self.callOnUpdatedValue(pConnection, pUserData);
-				self.methodReturnVariant(pInvocation, NULL);
-			})
-			.gattCharacteristicEnd()
-
-			// send scan result
-			.gattCharacteristicBegin("res", "00000013-B0C8-4679-8145-66CE3266C85F", {"notify"})
-			.onUpdatedValue(CHARACTERISTIC_UPDATED_VALUE_CALLBACK_LAMBDA {
-				const char *pTextString = self.getDataPointer<const char *>("ssid/res", "");
-				self.sendChangeNotificationValue(pConnection, pTextString);
-				return true;
-			})
-			.gattCharacteristicEnd()
-
-			// set ssid
-			.gattCharacteristicBegin("name", "00000014-B0C8-4679-8145-66CE3266C85F", {"write"})
-			.onWriteValue(CHARACTERISTIC_METHOD_CALLBACK_LAMBDA {
-				GVariant *pAyBuffer = g_variant_get_child_value(pParameters, 0);
-				self.setDataPointer("ssid/name", Utils::stringFromGVariantByteArray(pAyBuffer).c_str());
-				self.callOnUpdatedValue(pConnection, pUserData);
-				self.methodReturnVariant(pInvocation, NULL);
-			})
-			.gattCharacteristicEnd()
-
-			// set password
-			.gattCharacteristicBegin("password", "00000015-B0C8-4679-8145-66CE3266C85F", {"write"})
-			.onWriteValue(CHARACTERISTIC_METHOD_CALLBACK_LAMBDA {
-				GVariant *pAyBuffer = g_variant_get_child_value(pParameters, 0);
-				self.setDataPointer("ssid/password", Utils::stringFromGVariantByteArray(pAyBuffer).c_str());
-				self.callOnUpdatedValue(pConnection, pUserData);
-				self.methodReturnVariant(pInvocation, NULL);
-			})
-			.gattCharacteristicEnd()
-
-			// send status
-			.gattCharacteristicBegin("status", "00000016-B0C8-4679-8145-66CE3266C85F", {"notify"})
-			.onUpdatedValue(CHARACTERISTIC_UPDATED_VALUE_CALLBACK_LAMBDA {
-				const char *pTextString = self.getDataPointer<const char *>("gateway/status", "");
-				self.sendChangeNotificationValue(pConnection, pTextString);
-				return true;
-			})
-			.gattCharacteristicEnd()
-			.gattServiceEnd();
+		objects = aobjects;
 
 		//  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -  -
 		//                                                ____ _____ ___  _____

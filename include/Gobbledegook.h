@@ -52,13 +52,19 @@
 //           EFailedInit - the server had a failure prior to the ERunning state
 //           EFailedRun  - the server had a failure during the ERunning state
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
 #pragma once
+#include "DBusObject.h"
 
 #ifdef __cplusplus
 extern "C"
 {
 #endif //__cplusplus
+
+using namespace ggk;
+
+
+	// Our server is a collection of D-Bus objects
+	typedef std::list<DBusObject> Objects;
 
 	// -----------------------------------------------------------------------------------------------------------------------------
 	// LOGGING
@@ -210,7 +216,7 @@ extern "C"
 	//
 	//     Retrieve this value using the `getAdvertisingShortName()` method
 	//
-	int ggkStart(const char *pServiceName, const char *pAdvertisingName, const char *pAdvertisingShortName, 
+	int ggkStart(Objects &objects, const char *pServiceName, const char *pAdvertisingName, const char *pAdvertisingShortName,
 		GGKServerDataGetter getter, GGKServerDataSetter setter, int maxAsyncInitTimeoutMS);
 
 	// Blocks for up to maxAsyncInitTimeoutMS milliseconds until the server shuts down.

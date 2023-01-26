@@ -25,7 +25,7 @@
 
 #include <sstream>
 
-#include "../include/Gobbledegook.h"
+#include "Gobbledegook.h"
 
 namespace ggk {
 

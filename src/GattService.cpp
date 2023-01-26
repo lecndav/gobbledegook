@@ -17,7 +17,7 @@
 // >>>  DISCUSSION
 // >>
 //
-// A GATT Service is really a collection of 
+// A GATT Service is really a collection of
 //
 // This class is intended to be used within the server description. For an explanation of how this class is used, see the detailed
 // description in Server.cpp.
@@ -27,10 +27,10 @@
 #include <string>
 #include <list>
 
-#include "GattService.h"
-#include "GattInterface.h"
-#include "DBusObject.h"
-#include "GattCharacteristic.h"
+#include "../include/GattService.h"
+#include "../include/GattInterface.h"
+#include "../include/DBusObject.h"
+#include "../include/GattCharacteristic.h"
 
 namespace ggk {
 

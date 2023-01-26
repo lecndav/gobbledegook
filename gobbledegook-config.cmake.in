@@ -1,0 +1,12 @@
+@PACKAGE_INIT@
+
+set_and_check(gobbledegook_INCLUDEDIR "@PACKAGE_INCLUDE_INSTALL_DIR@")
+
+IF (NOT TARGET gobbledegook::gobbledegook)
+	INCLUDE(${CMAKE_CURRENT_LIST_DIR}/gobbledegook-targets.cmake)
+ENDIF()
+
+SET(gobbledegook_LIBRARIES gobbledegook::gobbledegook)
+SET(gobbledegook_INCLUDE_DIRS ${gobbledegook_INCLUDEDIR})
+
+check_required_components(gobbledegook)

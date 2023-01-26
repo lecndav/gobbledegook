@@ -46,11 +46,11 @@
 #include <chrono>
 #include <future>
 
-#include "HciAdapter.h"
-#include "HciSocket.h"
-#include "Utils.h"
-#include "Mgmt.h"
-#include "Logger.h"
+#include "../include/HciAdapter.h"
+#include "../include/HciSocket.h"
+#include "../include/Utils.h"
+#include "../include/Mgmt.h"
+#include "../include/Logger.h"
 
 namespace ggk {
 
@@ -363,7 +363,7 @@ void HciAdapter::runEventThread()
 				}
 				else
 				{
-					Logger::error("Invalid event type response: " + Utils::hex(eventCode));					
+					Logger::error("Invalid event type response: " + Utils::hex(eventCode));
 				}
 			}
 		}

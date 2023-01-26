@@ -43,10 +43,10 @@
 // a notifications to clients over BLE with the new battery level. This saves a lot of additional code on the server's part.
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-#include "DBusInterface.h"
-#include "GattProperty.h"
-#include "DBusObject.h"
-#include "Logger.h"
+#include "../include/DBusInterface.h"
+#include "../include/GattProperty.h"
+#include "../include/DBusObject.h"
+#include "../include/Logger.h"
 
 namespace ggk {
 
